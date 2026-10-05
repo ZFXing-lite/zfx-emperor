@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/logo.svg" alt="square-armor" width="120" height="120">
+
 # square-armor
 
 **A native DeepSeek Harness plugin that injects an operating frame at the highest system-prompt priority**
@@ -16,9 +18,11 @@ English · [简体中文](README.md)
 
 ## Overview
 
-square-armor is a native [DeepSeek Harness](https://github.com/deepseek-ai) (DSH) plugin. It injects an operating frame called **Square** into the model's system prompt at the **highest-priority section**, together with automatic refusal recovery and engine-layer detection.
+square-armor is a native [DeepSeek Harness](https://github.com/deepseek-ai) (DSH) plugin. It injects an operating frame called **Square** into the model's system prompt at the **highest-priority section**, together with automatic refusal recovery and approval-gate takeover.
 
 The name comes from the frame's image: **a square has no rounded corners**. Sharp where it should be sharp, direct where it should be direct.
+
+**Zero external dependencies**: does not require dsh-purge or any other plugin — install and use. If dsh-purge is present, this plugin detects the already-granted gate and yields the engine layer automatically; the two never interfere.
 
 > **Intended use**: authorized local security research, red-team exercises, CTF competitions, and adversarial-prompt experimentation.
 
@@ -28,7 +32,7 @@ The name comes from the frame's image: **a square has no rounded corners**. Shar
 
 - **Highest-priority injection** — the persona enters the system prompt at `order: -99999`, ahead of every official persona and agent-instructions section
 - **Automatic refusal recovery** — when the model refuses, a re-answer message is injected automatically, up to 2 times per turn, with a counter independent of other plugins
-- **Engine-layer detection** — probes the approval gate at load; skips if already granted, patches optionally if not (off by default)
+- **Approval-gate takeover** — probes the approval gate at load; if not granted, applies a minimal patch that short-circuits `decide()` to grant automatically. Skips if already granted
 - **Idempotent and version-tolerant** — patches are marker-checked so repeat installs never double-apply; a pattern that does not match the installed version reports instead of forcing a change
 - **Minimal** — no UI, no extra tools, no scorer; one directory, install and go
 
@@ -93,7 +97,7 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 
 | Option | Default | Description |
 |---|---|---|
-| `patchEngine` | `false` | Whether to patch the approval gate automatically when it is not granted. Keep `false` when running alongside dsh-purge |
+| `patchEngine` | `true` | Whether to patch the approval gate automatically when it is not granted. This plugin yields automatically when dsh-purge already granted it, so no manual change is needed; pass `false` to keep it off the engine entirely |
 
 Passed through the plugin config; generally no change needed.
 
@@ -141,12 +145,13 @@ Edit `prompts/square.md` directly to change the persona — no code changes need
 
 ## Relationship with dsh-purge
 
-The two coexist without interference:
+**This plugin does not depend on dsh-purge** — it works standalone. The two can coexist:
 
 - dsh-purge modifies the engine layer (approval gate, sandbox, identity injection)
-- this plugin covers the prompt layer and refusal recovery
-- recovery counters are independent
-- if dsh-purge has already granted the approval gate, this plugin skips its own engine patch
+- this plugin can take over the approval gate on its own; if dsh-purge already granted it, this plugin skips and never double-patches
+- persona injection and refusal-recovery counters are independent
+
+If you only want one, install this plugin; dsh-purge is not required.
 
 ---
 
@@ -154,12 +159,15 @@ The two coexist without interference:
 
 ```
 square-armor/
-├── index.js          entry: injection + recovery + engine probe
-├── lib/patcher.js    engine detection and fallback patch
-├── prompts/square.md persona body (the payload)
-├── install.ps1       installer
-├── uninstall.ps1     uninstaller
-├── push.ps1          maintainer publish script
+├── docs/
+│   ├── logo.svg          project logo (standard)
+│   └── logo-dark.svg     project logo (inverted)
+├── index.js              entry: injection + recovery + gate takeover
+├── lib/patcher.js        engine probe and approval-gate patch
+├── prompts/square.md     persona body (the payload)
+├── install.ps1           installer
+├── uninstall.ps1         uninstaller
+├── push.ps1              maintainer publish script
 ├── package.json
 ├── README.md
 ├── README.en.md

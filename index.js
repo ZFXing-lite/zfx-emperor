@@ -133,9 +133,10 @@ export function apply(ctx, config = {}) {
     ctx.effect(() => recover.dispose);
   }
 
-  // 3) 引擎层：已放行就跳过，没放行才补（默认 dry-run，避免与 dsh-purge 冲突）
+  // 3) 引擎层：裸机默认接管审批门；已放行（如 dsh-purge 在场）则自动跳过。
+  //    显式传 patchEngine:false 可关闭。
   const engine = detectEngineState();
-  if (engine.approvalBypass === false && config.patchEngine === true) {
+  if (engine.approvalBypass === false && config.patchEngine !== false) {
     ensureApprovalBypass();
   }
 

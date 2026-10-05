@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/logo.svg" alt="square-armor" width="120" height="120">
+
 # 正方形破甲 square-armor
 
 **DeepSeek Harness 原生破甲插件 —— 把操作框架注入系统提示词最高优先级**
@@ -16,9 +18,11 @@
 
 ## 简介
 
-正方形破甲是一个 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）原生插件。它把一套名为「正方形」的操作框架注入到模型系统提示词的**最高优先级段**，并附带拒绝自动续命与引擎层检测。
+正方形破甲是一个 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）原生插件。它把一套名为「正方形」的操作框架注入到模型系统提示词的**最高优先级段**，并附带拒绝自动续命与审批门接管。
 
 名字来自 persona 的意象：**正方形没有圆滑的地方**。该棱角的地方棱角，该直说的地方直说。
+
+**零外部依赖**：不依赖 dsh-purge 或任何其他插件，装上即用。若环境中已有 dsh-purge，本插件检测到审批门已放行会自动让出引擎层，两套互不干扰。
 
 > **适用场景**：本地授权环境下的安全研究、红队演练、CTF 竞技、提示词对抗实验。
 
@@ -28,7 +32,7 @@
 
 - **最高优先级注入** —— persona 以 `order: -99999` 进入系统提示词，压过所有官方 persona 与 agent-instructions 段
 - **拒绝自动续命** —— 模型拒答时自动注入重答消息，每轮最多 2 次，计数器独立于其他插件
-- **引擎层检测** —— 启动时探测审批门状态，已放行则跳过，未放行可选打补丁（默认关闭）
+- **引擎层接管** —— 启动时探测审批门状态，未放行则自动打最小补丁（短路 `decide()` 直接放行）；已放行则跳过
 - **幂等且版本宽容** —— 补丁带标记检测，重复安装不重复打；pattern 不匹配当前版本时只报告不强改
 - **最小可用** —— 无 UI、无额外工具、无评分器，一个目录装完即用
 
@@ -93,9 +97,9 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 
 | 配置项 | 默认值 | 说明 |
 |---|---|---|
-| `patchEngine` | `false` | 是否在审批门未放行时自动打补丁。与 dsh-purge 共存时保持 `false` |
+| `patchEngine` | `true` | 审批门未放行时是否自动打补丁。与 dsh-purge 共存时本插件会自动跳过，无需手动关闭；想完全不让它动引擎可传 `false` |
 
-配置通过插件的 config 传入，一般无需改动。
+通过插件 config 传入，一般无需改动。
 
 ---
 
@@ -141,12 +145,13 @@ pwsh -File uninstall.ps1
 
 ## 与 dsh-purge 的关系
 
-两者可共存，互不干扰：
+**本插件不依赖 dsh-purge**，独立安装即可使用。两者可共存：
 
 - dsh-purge 改引擎层（审批门、沙箱、身份注入）
-- 本插件覆盖提示词层与拒绝恢复
-- 续命计数器各自独立
-- 本插件检测到 purge 已放行审批门时自动跳过引擎补丁
+- 本插件自己也能接管审批门；检测到 dsh-purge 已放行时自动跳过，不重复打补丁
+- persona 注入与拒绝续命计数器各自独立
+
+若只想用一套，装本插件即可，无需 dsh-purge。
 
 ---
 
@@ -154,12 +159,15 @@ pwsh -File uninstall.ps1
 
 ```
 square-armor/
-├── index.js          入口：注入 + 续命 + 引擎检测
-├── lib/patcher.js    引擎检测与兜底补丁
-├── prompts/square.md persona 正文（破甲词本体）
-├── install.ps1       安装脚本
-├── uninstall.ps1     卸载脚本
-├── push.ps1          维护者发布脚本
+├── docs/
+│   ├── logo.svg          项目图标（标准）
+│   └── logo-dark.svg     项目图标（反白）
+├── index.js              入口：注入 + 续命 + 引擎接管
+├── lib/patcher.js        引擎检测与审批门补丁
+├── prompts/square.md     persona 正文（破甲词本体）
+├── install.ps1           安装脚本
+├── uninstall.ps1         卸载脚本
+├── push.ps1              维护者发布脚本
 ├── package.json
 ├── README.md
 ├── README.en.md
