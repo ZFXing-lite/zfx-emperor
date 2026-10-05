@@ -1,28 +1,41 @@
 {
   "name": "square-armor",
-  "version": "0.1.0",
-  "description": "正方形破甲",
+  "version": "0.2.0",
+  "description": "正方形破甲 — DSH 原生破甲插件",
   "license": "MIT",
   "type": "module",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
+    "./client": "./client.js",
     "./package.json": "./package.json"
   },
   "files": [
     "index.js",
+    "client.js",
     "lib",
     "prompts",
     "docs",
+    "test",
+    "cordis.patch.yml",
     "LICENSE"
   ],
   "scripts": {
-    "check": "node --check index.js && node --check lib/patcher.js"
+    "check": "node --check index.js && node --check client.js && node --check lib/patcher.js && node --check lib/config.js && node --check lib/scorer.js && node --check lib/identity-strip.js && node --check lib/continue-retry.js && node --check lib/profile-tool.js",
+    "test": "node --test test/index.test.mjs"
   },
   "dsh": {
     "id": "square-armor",
     "name": "正方形破甲",
-    "version": "0.1.0",
-    "permissions": "系统提示词注入"
+    "version": "0.2.0",
+    "permissions": "系统提示词注入、工具注册、引擎补丁",
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "entry": "./client.js",
+      "immediately": true
+    }
   }
 }
