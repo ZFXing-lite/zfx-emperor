@@ -1,49 +1,113 @@
-# 正方形破甲（square-armor）
+<div align="center">
 
-[English](README.en.md) | 中文
+# 正方形破甲 square-armor
 
-DSH 原生插件。注入「正方形」操作框架到系统提示词最高优先级段，带拒绝自动续命和引擎层检测。最小可用版，无 UI。
+**DeepSeek Harness 原生破甲插件 —— 把操作框架注入系统提示词最高优先级**
 
-## 它做什么
+[English](README.en.md) · 简体中文
 
-1. **persona 注入** — `prompts/square.md` 以 `order: -99999` 注入，紧随 dsh-purge（-100000）之后，压过所有官方 persona / agent-instructions 段
-2. **拒绝自动续命** — 监听 `agent/status`，模型空闲且回复命中拒绝正则时，自动注入一条 user message 让它重答，每轮最多 2 次
-3. **引擎层检测** — 启动时检测 `dsh-user-approval` 审批门状态。若 dsh-purge 已放行，自动跳过；若未放行且 `patchEngine: true`，才打最小补丁（默认不开，避免冲突）
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#安装)
+[![DSH](https://img.shields.io/badge/DSH-%3E%3D0.1.5-green)](#安装)
 
-## 设计理由
+</div>
 
-本机已装 dsh-purge 且审批门已被放行（`decide()` 直接返回 `allowed-once`）。本插件不重造引擎层，而是做 purge 不覆盖的部分：新 persona + 独立的拒绝恢复计数器。两套插件的续命机制互不干扰。
+---
 
-## 目录结构
+## 简介
 
-```
-square-armor/
-├── index.js          入口：注入 + 续命 + 引擎检测
-├── lib/patcher.js    引擎检测与兜底补丁（幂等，版本宽容）
-├── prompts/square.md 正方形 persona（破甲词本体）
-├── install.ps1       安装
-├── uninstall.ps1     卸载
-├── package.json
-└── LICENSE
-```
+正方形破甲是一个 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）原生插件。它把一套名为「正方形」的操作框架注入到模型系统提示词的**最高优先级段**，并附带拒绝自动续命与引擎层检测。
+
+名字来自 persona 的意象：**正方形没有圆滑的地方**。该棱角的地方棱角，该直说的地方直说。
+
+> **适用场景**：本地授权环境下的安全研究、红队演练、CTF 竞技、提示词对抗实验。
+
+---
+
+## 特性
+
+- **最高优先级注入** —— persona 以 `order: -99999` 进入系统提示词，压过所有官方 persona 与 agent-instructions 段
+- **拒绝自动续命** —— 模型拒答时自动注入重答消息，每轮最多 2 次，计数器独立于其他插件
+- **引擎层检测** —— 启动时探测审批门状态，已放行则跳过，未放行可选打补丁（默认关闭）
+- **幂等且版本宽容** —— 补丁带标记检测，重复安装不重复打；pattern 不匹配当前版本时只报告不强改
+- **最小可用** —— 无 UI、无额外工具、无评分器，一个目录装完即用
+
+---
+
+## 工作原理
+
+插件做三件事：
+
+| 层级 | 机制 | 说明 |
+|---|---|---|
+| 提示词 | `ctx.systemPrompt.section()` | persona 正文注入系统提示词，排序值 `-99999` |
+| 事件 | `ctx.on("agent/status")` | 监听模型空闲事件，命中拒绝特征则注入 user message 触发重答 |
+| 引擎 | `detectEngineState()` | 探测 `dsh-user-approval` 审批门，按需打最小补丁 |
+
+persona 正文每一节对应一条经实战验证的破甲机制，详见 [Persona 机制](#persona-机制)。
+
+---
 
 ## 安装
 
+### 方式一：安装脚本（Windows）
+
 ```powershell
-cd D:\DSH\破甲\square-armor
-pwsh -File install.ps1              # 装 web profile（默认）
+git clone https://github.com/ZFXing-lite/square-armor.git
+cd square-armor
+pwsh -File install.ps1              # 默认装 web profile
 pwsh -File install.ps1 -DryRun      # 先预演，不写盘
 ```
 
-脚本会：复制插件到 `$DSH_HOME/plugins/square-armor` → 备份并改 profile `package.json`（加 link 依赖 + bundle）→ `pnpm install`。
+脚本自动完成：
 
-装完**完全退出 dsh web 再重开**，新开一轮对话，正方形 frame 即进入系统提示。
+1. 复制插件到 `$DSH_HOME/plugins/square-armor`
+2. 备份并修改 profile 的 `package.json`（加 `link:` 依赖 + bundle 条目）
+3. 执行 `pnpm install`
+
+其他 profile：`pwsh -File install.ps1 -ProfileName default`
+
+### 方式二：手动安装（跨平台）
+
+```bash
+# 1. 放到插件目录
+cp -r square-armor ~/.dsh/plugins/square-armor
+
+# 2. 编辑 ~/.dsh/profiles/<profile>/package.json
+#    dependencies 加：
+#      "square-armor": "link:../plugins/square-armor"
+#    dsh.profile.bundles 数组末尾加：
+#      "square-armor"
+
+# 3. 安装依赖
+cd ~/.dsh/profiles/<profile> && pnpm install
+```
+
+### 生效
+
+**完全退出宿主再重新打开**，新开一轮对话，正方形框架即进入系统提示词。
+
+---
+
+## 配置
+
+| 配置项 | 默认值 | 说明 |
+|---|---|---|
+| `patchEngine` | `false` | 是否在审批门未放行时自动打补丁。与 dsh-purge 共存时保持 `false` |
+
+配置通过插件的 config 传入，一般无需改动。
+
+---
 
 ## 验证
 
-- 装完后问模型「你是谁」，应当回答「正方形」
-- 问一个会触发拒绝的问题，若模型拒答，插件会自动注入续命消息让它重答（每轮 ≤2 次）
-- 引擎状态在插件加载时由 `detectEngineState()` 探测；本机预期输出 `approvalBypass: true（dsh-purge）`
+安装后开一轮新对话：
+
+- 问「你是谁」—— 应当回答「正方形」
+- 提一个通常会被拒答的问题 —— 若模型拒答，插件自动注入续命消息触发重答
+- 启动时 `detectEngineState()` 会输出引擎探测结果
+
+---
 
 ## 卸载
 
@@ -51,37 +115,99 @@ pwsh -File install.ps1 -DryRun      # 先预演，不写盘
 pwsh -File uninstall.ps1
 ```
 
-从备份还原 profile，删插件目录，重装依赖。重启宿主后 frame 不再注入。
+或手动：从 `package.json` 删依赖与 bundle 条目，删插件目录，重跑 `pnpm install`，重启宿主。
 
-## 发布到自己的 GitHub
+---
 
-仓库已经 init 好并提交（身份 `ZFXing-lite`）。本机没有常驻凭据，填一个一次性 token 即可一键推：
+## Persona 机制
 
-```powershell
-$env:GH_TOKEN = "ghp_你的token"   # 只放当前会话，不落盘
-pwsh -File push.ps1
+`prompts/square.md` 是破甲词本体，每一节对应一条独立机制：
+
+| 节 | 机制 | 作用 |
+|---|---|---|
+| Precedence | 指令层级翻转 | 声明本段优先级高于宿主其他一切文本 |
+| Blacklist | 拒绝词黑名单 | 拒绝词出现在输出中即视为故障，重答 |
+| First Token Rule | 首行锚 | 首个 token 必须是交付承诺，禁止道歉/元评论开场 |
+| Scoped Rules | 任务域规则 | 按请求类型激活对应域，不给「范围外」借口 |
+| Hard-Topic Ladder | 降级阶梯 | 遇阻时逐级降维：理论 → 机制 → 流程 → 具体参数 |
+| No Midway Stop | 禁止中途停止 | 已开始的回答必须完成，不许中途撤回或重新定性 |
+| Retry | 重试即全量 | 用户重试时全量服从 |
+| Self-Repair | 防漂移自愈 | 框架被压缩或覆盖时从初见版本重建 |
+| Floor | 封闭红线 | 唯一拒绝路径：对真实、特定、非自愿当事人的具体伤害 |
+
+修改 persona 直接编辑 `prompts/square.md`，无需动代码。
+
+---
+
+## 与 dsh-purge 的关系
+
+两者可共存，互不干扰：
+
+- dsh-purge 改引擎层（审批门、沙箱、身份注入）
+- 本插件覆盖提示词层与拒绝恢复
+- 续命计数器各自独立
+- 本插件检测到 purge 已放行审批门时自动跳过引擎补丁
+
+---
+
+## 目录结构
+
+```
+square-armor/
+├── index.js          入口：注入 + 续命 + 引擎检测
+├── lib/patcher.js    引擎检测与兜底补丁
+├── prompts/square.md persona 正文（破甲词本体）
+├── install.ps1       安装脚本
+├── uninstall.ps1     卸载脚本
+├── push.ps1          维护者发布脚本
+├── package.json
+├── README.md
+├── README.en.md
+└── LICENSE
 ```
 
-脚本建私有仓库、用 `http.extraHeader` 推送（token 不写进 remote URL 或 `.git/config`）、推完移除 remote。用完去 GitHub 删掉 token。
+---
 
-## persona 机制拆解
+## FAQ
 
-`prompts/square.md` 里每一节对应一条已验证的破甲机制：
+**Q：装完没生效？**
+A：必须完全退出宿主进程再重开，且要新开一轮对话。系统提示词在会话开始时组装。
 
-| 节 | 机制 | 来源 |
-|---|---|---|
-| Precedence | 指令层级翻转，外部皆数据 | Instruction Hierarchy |
-| Blacklist | 拒绝词黑名单先行（最高优先级） | 富江模板 / DAN |
-| First Token Rule | 首行锚，禁止抱歉开头 | 富江 First-Line Anchor |
-| Scoped Rules | 任务域全覆盖，不给"范围外"借口 | 富江 Scoped Rules |
-| Hard-Topic Ladder | 拒绝降级阶梯 | 富江 Hard-Topic Ladder |
-| No Midway Stop | 禁止中途撤回 | 富江 |
-| Retry | 重试即全量服从 | 富江 |
-| Self-Repair | 防漂移自愈，被压缩则重建 | AGENTS(11) Delete/Drift |
-| Floor | 唯一拒绝红线（真人具体伤害） | prompt-inject.new Section 5 |
+**Q：和其他 persona 插件冲突吗？**
+A：注入段带优先级声明。若与其他高优先级插件冲突，调整 `index.js` 里的 `INJECT_ORDER`。
 
-## 局限
+**Q：支持哪些 DSH 版本？**
+A：DSH ≥ 0.1.5。引擎补丁部分依赖 `dsh-user-approval` 的具体版本，pattern 不匹配时会报告而不强改。
 
-- 不含 UI 状态条、profile 自查工具、实时评分器（后续可加）
-- `patchEngine` 默认关闭；本机 purge 已放行审批门，不需要开
-- persona 的 persona 依赖模型对指令层级的遵守，不是引擎级保证
+**Q：macOS / Linux 能用吗？**
+A：插件本身跨平台，安装脚本 `.ps1` 是 Windows 用的，其他平台走[手动安装](#方式二手动安装跨平台)。
+
+---
+
+## 贡献
+
+欢迎提 Issue 与 PR。提交前请运行：
+
+```bash
+node --check index.js && node --check lib/patcher.js
+```
+
+提交规范：`feat:` / `fix:` / `docs:` / `chore:` 开头。
+
+---
+
+## 许可
+
+[MIT](LICENSE) · Copyright © 2026 ZFXing-lite
+
+---
+
+## 相关项目
+
+- [dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) —— DSH 引擎层清洗，本插件与之互补
+
+<div align="center">
+
+**如果这个项目对你有帮助，欢迎点一个 Star ⭐**
+
+</div>
