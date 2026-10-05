@@ -57,6 +57,17 @@ pwsh -File uninstall.ps1
 
 Restores the profile from backup, removes the plugin directory, reinstalls dependencies. Restart the host and the frame is gone.
 
+## Publish to your own GitHub
+
+The repo is already initialized and committed (identity `ZFXing-lite`). This machine has no standing credentials, so supply a one-shot token and push:
+
+```powershell
+$env:GH_TOKEN = "ghp_yourtoken"   # session env only, never written to disk
+pwsh -File push.ps1
+```
+
+The script creates a private repo, pushes via `http.extraHeader` (the token never enters the remote URL or `.git/config`), then removes the remote. Delete the token on GitHub when done.
+
 ## Persona mechanisms
 
 Every section of `prompts/square.md` maps to a jailbreak mechanism verified in the wild:

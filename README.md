@@ -53,6 +53,17 @@ pwsh -File uninstall.ps1
 
 从备份还原 profile，删插件目录，重装依赖。重启宿主后 frame 不再注入。
 
+## 发布到自己的 GitHub
+
+仓库已经 init 好并提交（身份 `ZFXing-lite`）。本机没有常驻凭据，填一个一次性 token 即可一键推：
+
+```powershell
+$env:GH_TOKEN = "ghp_你的token"   # 只放当前会话，不落盘
+pwsh -File push.ps1
+```
+
+脚本建私有仓库、用 `http.extraHeader` 推送（token 不写进 remote URL 或 `.git/config`）、推完移除 remote。用完去 GitHub 删掉 token。
+
 ## persona 机制拆解
 
 `prompts/square.md` 里每一节对应一条已验证的破甲机制：
