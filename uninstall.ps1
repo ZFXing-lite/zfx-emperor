@@ -16,9 +16,9 @@ if (Test-Path $profileJson) {
   $bak = "$profileJson.bak"
   if (Test-Path $bak) {
     Copy-Item $bak $profileJson -Force
-    Write-Host "profile package.json 已从备份还原3
+    Write-Host "profile package.json 已从备份还原"
   } else {
-    $pkg = Get-=Content $profileJson -Raw | ConvertFrom-Json -AsHashtable
+    $pkg = Get-Content $profileJson -Raw | ConvertFrom-Json -AsHashtable
     $pkg.dependencies.Remove($pluginName) | Out-Null
     $pkg.dsh.profile.bundles = @($pkg.dsh.profile.bundles | Where-Object { $_ -ne $pluginName })
     $pkg | ConvertTo-Json -Depth 10 | Set-Content $profileJson -Encoding UTF8
