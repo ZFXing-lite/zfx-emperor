@@ -1,0 +1,27 @@
+{
+  "name": "square-armor",
+  "version": "0.1.0",
+  "description": "正方形破甲",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "prompts",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "node --check index.js && node --check lib/patcher.js"
+  },
+  "dsh": {
+    "id": "square-armor",
+    "name": "正方形破甲",
+    "version": "0.1.0",
+    "permissions": "系统提示词注入"
+  }
+}
