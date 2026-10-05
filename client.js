@@ -1,13 +1,13 @@
-// 正方形破甲 — Web UI 状态条
+// ZFX Emperor — Web UI 状态条
 // DSH web client 插件：在界面右下角显示插件状态徽章。
 // 通过 package.json 的 dsh.client.platform = "web" 注册。
 
-export const name = "square-armor-client";
+export const name = "zfx-emperor-client";
 
 export function mount(root, { status } = {}) {
   // 创建徽章容器
   const badge = document.createElement("div");
-  badge.id = "square-armor-badge";
+  badge.id = "zfx-emperor-badge";
   badge.style.cssText = [
     "position:fixed",
     "bottom:12px",

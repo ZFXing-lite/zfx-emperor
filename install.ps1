@@ -1,5 +1,5 @@
-# 正方形破甲 — 安装到本机 DSH
-# 用法：在 square-armor 目录下执行 pwsh -File install.ps1
+# ZFX Emperor — 安装到本机 DSH
+# 用法：在 zfx-emperor 目录下执行 pwsh -File install.ps1
 # 默认装 web profile；桌面端传 -Profile default
 
 param(
@@ -10,7 +10,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
-$pluginName = "square-armor"
+$pluginName = "zfx-emperor"
 $target = Join-Path $DshHome "plugins\$pluginName"
 $profileJson = Join-Path $DshHome "profiles\$ProfileName\package.json"
 

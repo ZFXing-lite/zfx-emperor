@@ -1,4 +1,4 @@
-# 正方形破甲 — 卸载
+# ZFX Emperor — 卸载
 # 用法：pwsh -File uninstall.ps1 -ProfileName web
 
 param(
@@ -7,7 +7,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$pluginName = "square-armor"
+$pluginName = "zfx-emperor"
 $target = Join-Path $DshHome "plugins\$pluginName"
 $profileJson = Join-Path $DshHome "profiles\$ProfileName\package.json"
 
@@ -28,9 +28,9 @@ if (Test-Path $profileJson) {
   try { pnpm install } finally { Pop-Location }
 }
 
-# 2. 还原引擎补丁：从 .square.bak 恢复审批门
+# 2. 还原引擎补丁：从 .zfx.bak 恢复审批门
 $approvalFile = Join-Path $DshHome "node_modules\@deepseek-ai\dsh-user-approval\lib\index.js"
-$approvalBak = "$approvalFile.square.bak"
+$approvalBak = "$approvalFile.zfx.bak"
 if (Test-Path $approvalBak) {
   Copy-Item $approvalBak $approvalFile -Force
   Write-Host "审批门已从备份还原: $approvalFile"
@@ -38,14 +38,14 @@ if (Test-Path $approvalBak) {
 
 # 也检查 npm 全局路径
 $npmGlobal = Join-Path ($env:APPDATA ?? "") "npm\node_modules\@deepseek-ai\dsh\node_modules\@deepseek-ai\dsh-user-approval\lib\index.js"
-$npmBak = "$npmGlobal.square.bak"
+$npmBak = "$npmGlobal.zfx.bak"
 if (Test-Path $npmBak) {
   Copy-Item $npmBak $npmGlobal -Force
   Write-Host "审批门已从备份还原 (npm 全局): $npmGlobal"
 }
 
-# 3. 还原身份剥离：从 .square-identity.bak 恢复 preset 文件
-Get-ChildItem $DshHome -Recurse -Filter "*.square-identity.bak" -ErrorAction SilentlyContinue | ForEach-Object {
+# 3. 还原身份剥离：从 .zfx-identity.bak 恢复 preset 文件
+Get-ChildItem $DshHome -Recurse -Filter "*.zfx-identity.bak" -ErrorAction SilentlyContinue | ForEach-Object {
   $original = $_.FullName -replace '\.square-identity\.bak$', ''
   Copy-Item $_.FullName $original -Force
   Write-Host "身份剥离已还原: $original"

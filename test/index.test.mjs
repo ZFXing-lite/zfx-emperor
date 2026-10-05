@@ -1,4 +1,4 @@
-// 正方形破甲 — 单元测试
+// ZFX Emperor — 单元测试
 // 运行：node --test test/index.test.mjs
 // 纯函数测试，不依赖 DSH 运行时。
 

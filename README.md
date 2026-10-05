@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/logo.svg" alt="square-armor" width="120" height="120">
+<img src="docs/logo.svg" alt="zfx-emperor" width="120" height="120">
 
-# 正方形破甲 square-armor
+# ZFX Emperor zfx-emperor
 
 **DeepSeek Harness 原生破甲插件 —— 把操作框架注入系统提示词最高优先级**
 
@@ -18,7 +18,7 @@
 
 ## 简介
 
-正方形破甲是一个 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）原生插件。它把一套名为「正方形」的操作框架注入到模型系统提示词的**最高优先级段**，并附带拒绝自动续命与审批门接管。
+ZFX Emperor是一个 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）原生插件。它把一套名为「正方形」的操作框架注入到模型系统提示词的**最高优先级段**，并附带拒绝自动续命与审批门接管。
 
 名字来自 persona 的意象：**正方形没有圆滑的地方**。该棱角的地方棱角，该直说的地方直说。
 
@@ -58,15 +58,15 @@ persona 正文每一节对应一条经实战验证的破甲机制，详见 [Pers
 ### 方式一：安装脚本（Windows）
 
 ```powershell
-git clone https://github.com/ZFXing-lite/square-armor.git
-cd square-armor
+git clone https://github.com/ZFXing-lite/zfx-emperor.git
+cd zfx-emperor
 pwsh -File install.ps1              # 默认装 web profile
 pwsh -File install.ps1 -DryRun      # 先预演，不写盘
 ```
 
 脚本自动完成：
 
-1. 复制插件到 `$DSH_HOME/plugins/square-armor`
+1. 复制插件到 `$DSH_HOME/plugins/zfx-emperor`
 2. 备份并修改 profile 的 `package.json`（加 `link:` 依赖 + bundle 条目）
 3. 执行 `pnpm install`
 
@@ -76,13 +76,13 @@ pwsh -File install.ps1 -DryRun      # 先预演，不写盘
 
 ```bash
 # 1. 放到插件目录
-cp -r square-armor ~/.dsh/plugins/square-armor
+cp -r zfx-emperor ~/.dsh/plugins/zfx-emperor
 
 # 2. 编辑 ~/.dsh/profiles/<profile>/package.json
 #    dependencies 加：
-#      "square-armor": "link:../plugins/square-armor"
+#      "zfx-emperor": "link:../plugins/zfx-emperor"
 #    dsh.profile.bundles 数组末尾加：
-#      "square-armor"
+#      "zfx-emperor"
 
 # 3. 安装依赖
 cd ~/.dsh/profiles/<profile> && pnpm install
@@ -161,7 +161,7 @@ pwsh -File uninstall.ps1
 ## 目录结构
 
 ```
-square-armor/
+zfx-emperor/
 ├── docs/
 │   ├── logo.svg          项目图标（标准）
 │   └── logo-dark.svg     项目图标（反白）

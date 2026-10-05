@@ -1,8 +1,8 @@
-# 正方形破甲 — 配置补丁
+# ZFX Emperor — 配置补丁
 # 这些值覆盖插件默认值。改这里不用改代码。
 # DSH 会把本文件合并进 profile 的 cordis 配置树。
 
-square-armor:
+zfx-emperor:
   # persona 注入排序值。越小越靠前。默认 -99999（紧随 dsh-purge -100000）。
   injectOrder: -99999
 

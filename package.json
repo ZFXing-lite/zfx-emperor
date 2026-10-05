@@ -1,7 +1,7 @@
 {
-  "name": "square-armor",
+  "name": "zfx-emperor",
   "version": "0.2.0",
-  "description": "正方形破甲 — DSH 原生破甲插件",
+  "description": "ZFX Emperor — DSH 原生破甲插件",
   "license": "MIT",
   "type": "module",
   "main": "./index.js",
@@ -25,8 +25,8 @@
     "test": "node --test test/index.test.mjs"
   },
   "dsh": {
-    "id": "square-armor",
-    "name": "正方形破甲",
+    "id": "zfx-emperor",
+    "name": "ZFX Emperor",
     "version": "0.2.0",
     "permissions": "系统提示词注入、工具注册、引擎补丁",
     "bundle": {

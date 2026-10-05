@@ -1,4 +1,4 @@
-# 正方形破甲 — 一键推送（填 token 即用）
+# ZFX Emperor — 一键推送（填 token 即用）
 # 用法：
 #   $env:GH_TOKEN = "ghp_你的token"        # 只放当前会话环境变量，不落盘
 #   pwsh -File push.ps1
@@ -7,7 +7,7 @@
 # Personal access tokens → Fine-grained tokens，勾 repo 读写即可。
 # 用完立刻在 GitHub 上删掉这个 token。
 
-param([string]$RepoName = "square-armor")
+param([string]$RepoName = "zfx-emperor")
 
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
@@ -31,7 +31,7 @@ try {
   $exists = $true
   Write-Host "仓库已存在：$r.full_name"
 } catch {
-  $body = @{ name = $RepoName; private = $true; description = "正方形破甲 — DSH 原生破甲插件" } | ConvertTo-Json
+  $body = @{ name = $RepoName; private = $true; description = "ZFX Emperor — DSH 原生破甲插件" } | ConvertTo-Json
   $r = Invoke-RestMethod -Method Post -Uri "https://api.github.com/user/repos" -Headers $headers -Body $body -ContentType "application/json"
   Write-Host "已创建私有仓库：$r.full_name"
 }

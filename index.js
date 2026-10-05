@@ -1,4 +1,4 @@
-// 正方形破甲 v0.2.0
+// ZFX Emperor v0.2.0
 // 1) persona 注入（最高优先级段）
 // 2) 拒绝自动续命 + 唤醒确认 + 截断自动继续
 // 3) 引擎层：审批门接管 + 身份剥离
@@ -17,7 +17,7 @@ import { installProfileTool, createStatusReport } from "./lib/profile-tool.js";
 const PROMPT_TEXT = readFileSync(new URL("./prompts/square.md", import.meta.url), "utf8")
   .replace(/\{\{(?!(?:cwd|model|provider)\}\})/g, "{ {");
 
-export const name = "square-armor";
+export const name = "zfx-emperor";
 export const inject = ["systemPrompt", "tools"];
 
 // ---- 共用工具 ----
@@ -119,10 +119,10 @@ function installRefusalRecover(ctx, cfg) {
 
       try {
         agent.followup({
-          id: `square-armor-recover-${randomUUID()}`,
+          id: `zfx-emperor-recover-${randomUUID()}`,
           role: "user",
           content: [{ type: "text", text: cfg.recoverText }],
-          source: { kind: "plugin", plugin: "square-armor", form: "notice", summary: "refusal-recover" },
+          source: { kind: "plugin", plugin: "zfx-emperor", form: "notice", summary: "refusal-recover" },
         });
         slot.count += 1;
         slot.lastKey = key;
@@ -167,10 +167,10 @@ function installWakeConfirm(ctx, cfg) {
 
       try {
         agent.followup({
-          id: `square-armor-wake-${randomUUID()}`,
+          id: `zfx-emperor-wake-${randomUUID()}`,
           role: "user",
           content: [{ type: "text", text: cfg.wakeHint }],
-          source: { kind: "plugin", plugin: "square-armor", form: "notice", summary: "wake-confirm" },
+          source: { kind: "plugin", plugin: "zfx-emperor", form: "notice", summary: "wake-confirm" },
         });
       } catch { /* */ }
     },
@@ -212,7 +212,7 @@ export function apply(ctx, config = {}) {
   // 1) persona 注入
   ctx.effect(() =>
     ctx.systemPrompt.section({
-      name: "square-armor:operating-frame",
+      name: "zfx-emperor:operating-frame",
       order: cfg.injectOrder,
       text: PROMPT_TEXT,
     }),

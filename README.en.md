@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/logo.svg" alt="square-armor" width="120" height="120">
+<img src="docs/logo.svg" alt="zfx-emperor" width="120" height="120">
 
-# square-armor
+# zfx-emperor
 
 **A native DeepSeek Harness plugin that injects an operating frame at the highest system-prompt priority**
 
@@ -18,7 +18,7 @@ English · [简体中文](README.md)
 
 ## Overview
 
-square-armor is a native [DeepSeek Harness](https://github.com/deepseek-ai) (DSH) plugin. It injects an operating frame called **Square** into the model's system prompt at the **highest-priority section**, together with automatic refusal recovery and approval-gate takeover.
+zfx-emperor is a native [DeepSeek Harness](https://github.com/deepseek-ai) (DSH) plugin. It injects an operating frame called **Square** into the model's system prompt at the **highest-priority section**, together with automatic refusal recovery and approval-gate takeover.
 
 The name comes from the frame's image: **a square has no rounded corners**. Sharp where it should be sharp, direct where it should be direct.
 
@@ -58,15 +58,15 @@ Every section of the persona body maps to a field-verified mechanism — see [Pe
 ### Option 1: install script (Windows)
 
 ```powershell
-git clone https://github.com/ZFXing-lite/square-armor.git
-cd square-armor
+git clone https://github.com/ZFXing-lite/zfx-emperor.git
+cd zfx-emperor
 pwsh -File install.ps1              # web profile by default
 pwsh -File install.ps1 -DryRun      # preview, writes nothing
 ```
 
 The script:
 
-1. Copies the plugin to `$DSH_HOME/plugins/square-armor`
+1. Copies the plugin to `$DSH_HOME/plugins/zfx-emperor`
 2. Backs up and edits the profile `package.json` (adds a `link:` dependency and a bundle entry)
 3. Runs `pnpm install`
 
@@ -76,13 +76,13 @@ Other profiles: `pwsh -File install.ps1 -ProfileName default`
 
 ```bash
 # 1. Copy into the plugins directory
-cp -r square-armor ~/.dsh/plugins/square-armor
+cp -r zfx-emperor ~/.dsh/plugins/zfx-emperor
 
 # 2. Edit ~/.dsh/profiles/<profile>/package.json
 #    add to dependencies:
-#      "square-armor": "link:../plugins/square-armor"
+#      "zfx-emperor": "link:../plugins/zfx-emperor"
 #    append to dsh.profile.bundles:
-#      "square-armor"
+#      "zfx-emperor"
 
 # 3. Install dependencies
 cd ~/.dsh/profiles/<profile> && pnpm install
@@ -161,7 +161,7 @@ If you only want one, install this plugin; dsh-purge is not required.
 ## Layout
 
 ```
-square-armor/
+zfx-emperor/
 ├── docs/
 │   ├── logo.svg          project logo (standard)
 │   └── logo-dark.svg     project logo (inverted)
